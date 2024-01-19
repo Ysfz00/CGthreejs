@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Art Gallery</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script
+        src="https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/js/controls/OrbitControls.js"></script>
+
+
+    <script>
+        // Setting up the scene
+        const scene = new THREE.Scene();
+
+        // Setting up the camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 10);
+        camera.lookAt(0, 0, 0);
+
+        // Setting up the renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000); 
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+
+        // Load the textures
+        const textureLoader = new THREE.TextureLoader();
+
+        // Wooden texture
+        const floorTexture = textureLoader.load('/floor1.jpg');
+
+        // Concrete texture
+        const concreteTexture = textureLoader.load('/wall1.jpg');
+
+        // Diamond texture
+        const diamondTexture = textureLoader.load('/diamond2.jpeg');
+
+        // Table texture
+        const tableTexture = textureLoader.load('/table.jpeg');
+
+        // Frame textures
+        const frame1Texture = textureLoader.load('/art11.jpg');
+        frame1Texture.minFilter = THREE.LinearFilter;
+
+        const frame2Texture = textureLoader.load('/art22.jpg');
+        frame2Texture.minFilter = THREE.LinearFilter;
+
+        const frame3Texture = textureLoader.load('/art44.jpg');
+        frame3Texture.minFilter = THREE.LinearFilter;
+
+
+        // Wall material using concrete texture
+        const wallMaterial = new THREE.MeshStandardMaterial({ map: concreteTexture });
+
+        // Frame materials
+        const frame1Materials = [
+            wallMaterial,   
+            wallMaterial,  
+            wallMaterial,  
+            wallMaterial,  
+            new THREE.MeshBasicMaterial({ map: frame1Texture }),
+            wallMaterial   
+        ];
+
+        const frame2Materials = [
+            wallMaterial,   
+            wallMaterial,  
+            wallMaterial,  
+            wallMaterial,  
+            wallMaterial,
+            new THREE.MeshBasicMaterial({ map: frame2Texture })   
+        ];
+
+        const frame3Materials = [
+            wallMaterial,   
+            wallMaterial,  
+            wallMaterial,  
+            wallMaterial,  
+            new THREE.MeshBasicMaterial({ map: frame3Texture }),
+            wallMaterial   
+        ];
+
+
+
+        // Floor Grid texture
+        const gridTexture = textureLoader.load('/grid2.jpeg');
+
+        gridTexture.wrapS = THREE.RepeatWrapping;
+        gridTexture.wrapT = THREE.RepeatWrapping;
+        gridTexture.repeat.set(3, 3);
+
+        // Grid
+        const gridGeometry = new THREE.BoxGeometry(75, 0.1, 75); 
+        const gridMaterial = new THREE.MeshBasicMaterial({ map: gridTexture });
+        const grid = new THREE.Mesh(gridGeometry, gridMaterial);
+        grid.position.set(0, 0.01, 0); 
+        scene.add(grid);
+
+        // Wooden Floor
+        const floorGeometry = new THREE.BoxGeometry(30, 0.1, 40); 
+        const wfloorMaterial = new THREE.MeshLambertMaterial({ map: floorTexture });
+        const floor = new THREE.Mesh(floorGeometry, wfloorMaterial);
+        floor.position.set(0, 0.02, 0); 
+        scene.add(floor);
+
+
+        // Wall (At the back)
+        const wallGeometry = new THREE.BoxGeometry(30, 11, 0.5);
+        const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+        wall.position.set(0, 5.5, -20);
+        scene.add(wall);
+
+        // Right Wall
+
+        const lowerRightWallGeometry = new THREE.BoxGeometry(0.5, 8, 40);
+        const lowerRightWall = new THREE.Mesh(lowerRightWallGeometry, wallMaterial);
+        lowerRightWall.position.set(14.8, 4, 0);
+        scene.add(lowerRightWall);
+
+
+        // Left Wall
+        const leftWallGeometry = new THREE.BoxGeometry(0.5, 8, 40);
+        const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+        leftWall.position.set(-14.8, 4, 0);
+        scene.add(leftWall);
+
+        // Half Wall 1
+        const hWall1Geometry = new THREE.BoxGeometry(15, 11, 0.5);
+        const hWall1 = new THREE.Mesh(hWall1Geometry, wallMaterial);
+        hWall1.position.set(-7.5, 5.5, 12);
+        scene.add(hWall1);
+
+        // Half Wall 2
+        const hWall2Geometry = new THREE.BoxGeometry(15, 11, 0.5);
+        const hWall2 = new THREE.Mesh(hWall2Geometry, wallMaterial);
+        hWall2.position.set(7.5, 5.5, 2);
+        scene.add(hWall2);
+
+        // Entrance wall 1
+        const eWall1Geometry = new THREE.BoxGeometry(6, 11, 0.5);
+        const eWall1 = new THREE.Mesh(eWall1Geometry, wallMaterial);
+        eWall1.position.set(-12, 5.5, 20);
+        scene.add(eWall1);
+
+        // Entrance Wall 2
+        const eWall2Geometry = new THREE.BoxGeometry(18, 11, 0.5);
+        const eWall2 = new THREE.Mesh(eWall2Geometry, wallMaterial);
+        eWall2.position.set(6, 5.5, 20);
+        scene.add(eWall2);
+
+        // frame 1
+        const frame1Geometry = new THREE.BoxGeometry(5, 5, 0.8);
+        const frame1 = new THREE.Mesh(frame1Geometry, frame1Materials);
+        frame1.position.set(-7.5, 5.5, 12.2);
+        scene.add(frame1);
+
+        // frame 2
+        const frame2Geometry = new THREE.BoxGeometry(5, 5, 0.8);
+        const frame2 = new THREE.Mesh(frame2Geometry, frame2Materials);
+        frame2.position.set(-7.5, 5.5, 11.8);
+        scene.add(frame2);
+
+        // frame 3
+        const frame3Geometry = new THREE.BoxGeometry(5, 5, 0.8);
+        const frame3 = new THREE.Mesh(frame3Geometry, frame3Materials);
+        frame3.position.set(7.5, 5.5, 2.2);
+        scene.add(frame3);
+
+        // Window 1
+        const windowGeometry = new THREE.BoxGeometry(0.1, 3, 40); 
+        const glassMaterial2 = new THREE.MeshBasicMaterial({
+            color: 0xFFFFFF,
+            transparent: true,
+            opacity: 0.5
+        });
+
+        const windowPane = new THREE.Mesh(windowGeometry, glassMaterial2);
+        windowPane.position.set(15, 9.5, 0); 
+        scene.add(windowPane);
+
+        // Window 2
+        const windowGeometry2 = new THREE.BoxGeometry(0.1, 3, 40); 
+        const windowPane2 = new THREE.Mesh(windowGeometry2, glassMaterial2);
+        windowPane2.position.set(-15, 9.5, 0); 
+        scene.add(windowPane2);
+
+        // Roof
+        const roofGeometry = new THREE.BoxGeometry(30, 0.1, 40);
+        const roof = new THREE.Mesh(roofGeometry, glassMaterial2);
+        roof.position.set(0, 11, 0);
+        scene.add(roof);
+
+        // Table Geometry and Material
+        const tableGeometry = new THREE.BoxGeometry(3, 5, 3);
+        const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture }); 
+
+        const table = new THREE.Mesh(tableGeometry, tableMaterial);
+        table.position.set(0, 2.5, -8); 
+        scene.add(table);
+
+        // Diamond Geometry and Material
+        const diamondGeometry = new THREE.OctahedronGeometry(1); 
+        const diamondMaterial = new THREE.MeshBasicMaterial({ map: diamondTexture }); 
+
+        const diamond = new THREE.Mesh(diamondGeometry, diamondMaterial);
+        diamond.position.set(
+            table.position.x,
+            table.position.y + table.geometry.parameters.height / 2 + diamond.geometry.parameters.radius + 0.5, 
+            table.position.z
+        );
+        scene.add(diamond);
+
+        // Glass Material
+        const glassMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFFFFFF,
+            transparent: true,
+            opacity: 0.4
+        });
+
+        // Glass Box Geometry
+        const padding = 0.5;
+        const glassBoxGeometry = new THREE.BoxGeometry(
+            diamond.geometry.parameters.radius * 2.5 + padding,
+            diamond.geometry.parameters.radius * 2.5 + padding,
+            diamond.geometry.parameters.radius * 2.5 + padding
+        );
+
+        const glassBox = new THREE.Mesh(glassBoxGeometry, glassMaterial);
+
+        glassBox.position.set(
+            diamond.position.x,
+            diamond.position.y,
+            diamond.position.z
+        );
+        scene.add(glassBox);
+
+        // poles
+        const poleHeight = 4;  
+        const poleRadius = 0.1;
+        const poleGeometry = new THREE.CylinderGeometry(poleRadius, poleRadius, poleHeight, 32);
+        const poleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 }); 
+
+        const poleDistanceFromTable = 3;  
+
+        const poles = [];
+
+        for (let i = 0; i < 4; i++) {
+            const pole = new THREE.Mesh(poleGeometry, poleMaterial);
+            switch (i) {
+                case 0:
+                    pole.position.set(table.position.x + poleDistanceFromTable, (table.position.y - poleHeight / 2) + table.geometry.parameters.height / 2, table.position.z + poleDistanceFromTable);
+                    break;
+                case 1:
+                    pole.position.set(table.position.x - poleDistanceFromTable, (table.position.y - poleHeight / 2) + table.geometry.parameters.height / 2, table.position.z + poleDistanceFromTable);
+                    break;
+                case 2:
+                    pole.position.set(table.position.x + poleDistanceFromTable, (table.position.y - poleHeight / 2) + table.geometry.parameters.height / 2, table.position.z - poleDistanceFromTable);
+                    break;
+                case 3:
+                    pole.position.set(table.position.x - poleDistanceFromTable, (table.position.y - poleHeight / 2) + table.geometry.parameters.height / 2, table.position.z - poleDistanceFromTable);
+                    break;
+            }
+            poles.push(pole);
+            scene.add(pole);
+        }
+
+
+        // Red Strip Material and Geometry
+        const stripLength = 2 * poleDistanceFromTable;  
+        const stripWidth = 0.25;  
+        const stripMaterial = new THREE.MeshBasicMaterial({ color: 0xFF0000 }); 
+
+        // Strip connecting Top-Right to Top-Left 
+        const horizontalStrip1Geometry = new THREE.BoxGeometry(stripLength, stripWidth, stripWidth);
+        const horizontalStrip1 = new THREE.Mesh(horizontalStrip1Geometry, stripMaterial);
+        horizontalStrip1.position.set(table.position.x, table.position.y + poleHeight / 2, table.position.z + poleDistanceFromTable);
+        scene.add(horizontalStrip1);
+
+        // Strip connecting Bottom-Right to Bottom-Left 
+        const horizontalStrip2 = new THREE.Mesh(horizontalStrip1Geometry, stripMaterial);
+        horizontalStrip2.position.set(table.position.x, table.position.y + poleHeight / 2, table.position.z - poleDistanceFromTable);
+        scene.add(horizontalStrip2);
+
+        // Strip connecting Top-Left to Bottom-Left 
+        const verticalStrip1Geometry = new THREE.BoxGeometry(stripWidth, stripWidth, stripLength);
+        const verticalStrip1 = new THREE.Mesh(verticalStrip1Geometry, stripMaterial);
+        verticalStrip1.position.set(table.position.x - poleDistanceFromTable, table.position.y + poleHeight / 2, table.position.z);
+        scene.add(verticalStrip1);
+
+        // Strip connecting Top-Right to Bottom-Right 
+        const verticalStrip2 = new THREE.Mesh(verticalStrip1Geometry, stripMaterial);
+        verticalStrip2.position.set(table.position.x + poleDistanceFromTable, table.position.y + poleHeight / 2, table.position.z);
+        scene.add(verticalStrip2);
+
+
+        // Enabling shadow for objects
+        diamond.castShadow = true;
+        glassBox.castShadow = true;
+        table.castShadow = true;
+        floor.receiveShadow = true;
+        wall.receiveShadow = true;
+        roof.receiveShadow = true;
+
+        // Primary sunlight
+        const sunlight = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+        sunlight.position.set(1, 2, 1);  
+        sunlight.castShadow = true;
+        sunlight.shadow.mapSize.width = 512;
+        sunlight.shadow.mapSize.height = 512;
+        sunlight.shadow.camera.near = 0.5;
+        sunlight.shadow.camera.far = 50;
+        sunlight.shadow.camera.left = -30;
+        sunlight.shadow.camera.right = 30;
+        sunlight.shadow.camera.top = 30;
+        sunlight.shadow.camera.bottom = -30;
+        scene.add(sunlight);
+
+        // Secondary light
+        const secondaryLight = new THREE.DirectionalLight(0xFFFFFF, 0.35); 
+        secondaryLight.position.set(-1, 1, 0);  
+        scene.add(secondaryLight);
+
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+        scene.add(ambientLight);
+
+
+
+        // OrbitControls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.update();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate the diamond in x-direction
+            diamond.rotation.y += 0.02;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+
+    </script>
+</body>
+
+</html>
